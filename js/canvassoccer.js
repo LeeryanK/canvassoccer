@@ -8,7 +8,7 @@
   }
 
   /**
-   * @constructor Vector A 2D Vector class
+   * @constructor Vector A 2D Vector class.
    */
   function Vector(x, y) {
     this.x = x || 0;
@@ -35,11 +35,13 @@
   Vector.prototype.add = function(otherVector) {
     this.x += otherVector.x;
     this.y += otherVector.y;
+    return this;
   };
 
   Vector.prototype.multiply = function(scalar) {
     this.x *= scalar;
     this.y *= scalar;
+    return this;
   };
 
   Vector.prototype.getMagnitude = function() {
@@ -48,5 +50,18 @@
 
   Vector.prototype.getAngle = function() {
     return Math.atan(this.y / this.x);
+  };
+
+  function Movable(pos, vel, acc) {
+    this.position = pos || Vector.ZERO.clone();
+    this.velocity = vel || Vector.ZERO.clone();
+    this.acceleration = acc || Vector.ZERO.clone();
+  }
+
+  Movable.prototype.update = function(multiplier) {
+    multiplier = multiplier || 1;
+
+    this.velocity.add(this.acceleration.clone().multiply(multiplier));
+    this.position.add(this.velocity.clone().multiply(multiplier));
   };
 })();
