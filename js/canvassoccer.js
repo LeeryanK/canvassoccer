@@ -87,11 +87,78 @@
   Circle.prototype.isTouching = function(otherShape) {
     switch (otherShape.shapeType) {
       case Shapes.CIRCLE:
-        return (this.radius + otherShape.radius) >= this.position.getDifferenceFrom(otherShape.position).getMagnitude();
+        // Check if the sum of the radii (the maximum distance they can be apart
+        //   and still be touching) is equal to or greater than the two circle's
+        //   actual distance.
+        return this.radius + otherShape.radius >= this.position.getDifferenceFrom(otherShape.position).getMagnitude();
 
       case Shapes.RECTANGLE:
-        // Created rectangular collision box with padding equal to the radius of
-        //   this circle.
+        // Create rectangular collision box around the rectangle with padding
+        //   equal to the radius of this circle, and then checks if the circle
+        //   is in it, through the following steps:
+
+        // Cache the rectangle's properties in short variables.
+        // ICYW: The 'o' prefix in the variables stands for 'Other shape.'
+        var ox = otherShape.position.x;
+        var oy = otherShape.position.y;
+        var ow = otherShape.width;
+        var oh = otherShape.height;
+
+        // Cache my properties in short variables.
+        var x = this.position.x;
+        var y = this.position.y;
+        var r = this.radius;
+
+        // Create the sides of the extended collision box.
+        // ICYW: The 'e' prefix stands for 'Extended collision box' and the
+        //   other letters are for 'top', 'right', 'bottom', and 'left.'
+        var et = oy - r;
+        var er = ox + ow + r;
+        var eb = oy + oh + r;
+        var el = ox - r;
+
+        // Check if the circle is in the collision box.
+        return x < er && x > el && y > et && y < eb;
+    }
+  };
+
+  function Rectangle(pos, vel, acc, w, h) {
+    Movable.call(this, pos, vel, acc);
+
+    this.width = w;
+    this.height = h;
+  }
+
+  Rectangle.prototype = Object.create(Movable.prototype);
+
+  Rectangle.prototype.shapeType = Shapes.RECTANGLE;
+
+  Rectangle.prototype.isTouching = function(otherShape) {
+    /**
+     * @see {Circle#isTouching} for an explanation on the collision detection
+     *   algorithms used here. These algorithms are built on the same concepts
+     *   as the ones used in Circle#isTouching.
+     */
+    switch (otherShape.shapeType) {
+      case Shapes.CIRCLE:
+        var ox = otherShape.position.x;
+        var oy = otherShape.position.y;
+        var or = otherShape.radius;
+
+        var x = this.position.x;
+        var y = this.position.y;
+        var w = this.width;
+        var h = this.height;
+
+        var et = y - or;
+        var er = x + w + or;
+        var eb = y + h + or;
+        var el = x - or;
+
+        return ox < er &&  ox > el && oy > et && oy < eb;
+
+      case Shapes.RECTANGLE:
+        // TODO: Double-check the validity of this algorithm.
         var ox = otherShape.position.x;
         var oy = otherShape.position.y;
         var ow = otherShape.width;
@@ -99,14 +166,15 @@
 
         var x = this.position.x;
         var y = this.position.y;
-        var r = this.radius;
+        var w = this.width;
+        var h = this.height;
 
-        var et = oy - r;
-        var er = ox + ow + r;
-        var eb = oy + oh + r;
-        var el = ox - r;
+        var et = y - oh;
+        var er = x + w;
+        var eb = y + h;
+        var el = x - ow;
 
-        return x < er && x > el && y > et && y < eb;
+        return ox < er && ox > el && oy > et && oy < eb;
     }
   };
 })();
