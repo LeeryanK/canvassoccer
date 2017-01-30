@@ -1,5 +1,7 @@
 (function() {
-  function CanvasSoccer() {
+  function CanvasSoccer(container) {
+    this.canvas = document.createElement('canvas');
+    this.ctx = this.canvas.getContext('2d');
 
   }
 
@@ -158,7 +160,7 @@
         return ox < er &&  ox > el && oy > et && oy < eb;
 
       case Shapes.RECTANGLE:
-        // TODO: Double-check the validity of this algorithm.
+        // @todo Double-check the validity of this algorithm.
         var ox = otherShape.position.x;
         var oy = otherShape.position.y;
         var ow = otherShape.width;
